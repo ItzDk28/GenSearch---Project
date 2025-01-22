@@ -92,5 +92,5 @@ def main():
     print(f"\nQuery: {query}")
     print(f"Response: {response}")
 
-if __name__ == "__main__": 
+if __name__ == "__main__":
     main()
