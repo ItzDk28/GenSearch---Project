@@ -2,8 +2,6 @@
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Document
 from llama_index.core.settings import Settings
 from llama_index.llms.openai import OpenAI
-import os 
-from dotenv import load_dotenv
 import logging
 
 # Configure Logging
