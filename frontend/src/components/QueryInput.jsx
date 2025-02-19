@@ -24,7 +24,10 @@ const QueryInput = ({ onSubmit, indexId }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ query, index_id: indexID }),
+                body: JSON.stringify({ 
+                    query,
+                    index_id: indexID 
+                }),
             });
 
             const data = await response.json();

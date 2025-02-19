@@ -26,7 +26,7 @@ const App = () => {
   };
 
   return (
-    <ThemeProivder theme = {theme}>
+    <ThemeProvider theme = {theme}>
       <GlobalStyles />
       <AppContainer>
         <h1>GenSearch</h1>
@@ -34,7 +34,7 @@ const App = () => {
         {indexId && <QueryInput onSubmit={handleQuery} indexId={indexId} />}
         {response && <ResponseDisplay response={response} />}
       </AppContainer>
-    </ThemeProivder>
+    </ThemeProvider>
   );
 };
 
