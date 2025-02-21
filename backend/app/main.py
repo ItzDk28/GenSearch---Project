@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from app.services.pdf_service import PDFService
 from app.services.indexing import IndexingService
 from app.services.llm_service import LLMService
+from app.config.settings import settings
 
 class QueryRequest(BaseModel):
     query: str
@@ -22,7 +23,7 @@ app.add_middleware(
 
 pdf_service = PDFService()
 indexing_service = IndexingService()
-llm_service = LLMService()
+llm_service = LLMService(indexing_service)
 
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):

@@ -1,6 +1,11 @@
-from llama_index.core import ServiceContext, Settings
-from llama_index.llms import OpenAI
-from config import settings
+from llama_index.core import Settings
+from llama_index.llms.openai import OpenAI
+import sys
+import os
+
+# Add the parent directory to sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config.settings import settings
 
 class LLMService:
     def __init__(self, indexing_service):
@@ -11,7 +16,6 @@ class LLMService:
         )
 
         self.indexing_service = indexing_service
-        self.service_context = ServiceContext.from_defaults()
 
     async def generate_response(self, query: str, index_id: str) -> str:
         try:
