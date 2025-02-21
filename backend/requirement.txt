@@ -1,6 +1,6 @@
-llama-index==0.8.54
+llama-index==0.12.19
 langchain==0.0.352
-openai==0.28.1
+openai==1.63.2
 python-dotenv==1.0.0
 fastapi==0.104.1
 uvicorn==0.24.0
