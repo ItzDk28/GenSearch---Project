@@ -1,0 +1,131 @@
+/* General Styles */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    background-color: black; /* Black background for the entire page */
+    color: white; /* White text for contrast */
+    overflow: hidden; /* Prevent scrolling */
+}
+
+.container {
+    position: relative;
+    height: 100vh;
+    z-index: 2; /* Ensure content is above the gradient */
+}
+
+/* Gradient Splashes on Corners */
+body::before,
+body::after {
+    content: '';
+    position: absolute;
+    width: 300px; /* Size of the gradient splash */
+    height: 300px;
+    background: radial-gradient(
+        circle,
+        #4E0ADE, /* Start color */
+        #A513FF, /* Second color */
+        #FF00F5, /* Third color */
+        #4E0ADE  /* End color */
+    );
+    filter: blur(100px); /* Blur effect for a soft gradient splash */
+    z-index: 1; /* Place behind the content */
+}
+
+body::before {
+    top: -150px;
+    left: -150px; /* Top-left corner */
+}
+
+body::after {
+    bottom: -150px;
+    right: -150px; /* Bottom-right corner */
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+header .logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+header .auth-buttons button {
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 10px 20px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+header .auth-buttons button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Hero Section Styles */
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.hero h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.hero .get-started {
+    background-color: #4E0ADE;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.hero .get-started:hover {
+    background-color: #A513FF;
+}
+
+/* Features Section Styles */
+.features {
+    display: flex;
+    justify-content: space-around;
+    padding: 50px 20px;
+}
+
+.feature {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+    width: 30%;
+    text-align: center;
+}
+
+.feature h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.feature p {
+    font-size: 16px;
+}
+
+/* Footer Styles */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-top: 50px;
+}

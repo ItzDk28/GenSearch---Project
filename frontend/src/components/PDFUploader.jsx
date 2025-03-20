@@ -1,101 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
+import LoadingAnimation from './LoadingAnimation';
 
 const UploadContainer = styled.div`
-    padding: 2rem;
-    border: 2px dashed #ccc;
-    border-radius: 8px;
-    text-align: center;
-    margin: 2rem 0;
-    transition: background-color 0.3s ease;
+  padding: 2rem;
+  border: 2px dashed #444;
+  border-radius: 8px;
+  text-align: center;
+  margin: 2rem 0;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  
+  &:hover {
+    border-color: #666;
+    background: rgba(255, 255, 255, 0.1);
+  }
 `;
 
-const Input = styled.input`
-    display: none;
+const FileInput = styled.input`
+  display: none;
 `;
 
-const UploadButton = styled.button`
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    marging-top: 1rem;
-    
-    &:hover {
-        background-color: #0056b3;
-    }
+const Status = styled.p`
+  margin-top: 1rem;
+  color: ${props => props.error ? '#ff4444' : '#44ff44'};
 `;
 
 const PDFUploader = ({ onUpload }) => {
-    const [dragging, setDragging] = useState(false);
-    const[uploading, setUploading] = useState(false);
+  const [status, setStatus] = useState('');
+  const [error, setError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
-    const handleDrop = async (e) => {
-        e.preventDefault();
-        setDragging(false);
+  const handleUpload = async (file) => {
+    try {
+      setIsUploading(true);
+      setError('');
+      setStatus('');
 
-        const file = e.dataTransfer?.files?.[0];
-        if (file?.type === 'application/pdf') {
-            await uploadFile(file);
-        }
-    };
+      const formData = new FormData();
+      formData.append('file', file);
 
-    const handleFileInput = async (e) => {
-        const file = e.target?.files?.[0];
-        if (file?.type === 'application/pdf') {
-            await uploadFile(file);
-        }
-    };
+      const response = await fetch('http://localhost:8000/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-    const uploadFile = async (file) => {
-        try {
-            setUploading(true);
-            const formData = new FormData();
-            formData.append('file', file);
+      if (!response.ok) {
+        throw new Error(`Upload failed with status: ${response.status}`);
+      }
 
-            const response = await fetch('http://localhost:8000/upload', {
-                method: 'POST',
-                body: formData,
-            });
+      const data = await response.json();
+      setStatus('Upload successful!');
+      onUpload(data);
+    } catch (error) {
+      console.error('Upload error:', error);
+      setError('Failed to upload PDF. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
-            const data = await response.json();
-            onUpload(data);
-        }   catch (error) {
-            console.error('Upload failed:', error);
-        }   finally {
-            setUploading(false);
-        }
-    };
+  const handleClick = () => {
+    if (!isUploading) {
+      fileInputRef.current?.click();
+    }
+  };
 
-    return (
-        <UploadContainer
-            onDragOver= {(e) => {
-                e.preventDefault();
-                setDragging(true);
-            }}
-            onDragLeave = {() => setDragging(false)}
-            onDrop={handleDrop}
-            style={{ 
-                background: dragging ? '#f0f0f0' : 'white',
-                opacity: uploading ? 0.6 : 1 
-            }}
-        >
-            <h3>Drag and drop your PDF here</h3>
-            <p>or</p>
-            <input
-                type="file"
-                accept=".pdf"
-                id="file-upload"
-                onChange={handleFileInput}
-            />
-            <UploadButton onClick={() => document.getElementById('file-upload').click()}>
-                Choose file
-            </UploadButton>
-            {uploading && <p>Uploading...</p>}
-        </UploadContainer>
-    );
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        setError('Please select a PDF file');
+        return;
+      }
+      handleUpload(file);
+    }
+  };
+
+  return (
+    <UploadContainer onClick={handleClick} style={{ cursor: isUploading ? 'default' : 'pointer' }}>
+      {!isUploading ? (
+        <h3>Click or drag PDF files here</h3>
+      ) : (
+        <LoadingAnimation />
+      )}
+      <FileInput
+        ref={fileInputRef}
+        type="file"
+        accept=".pdf"
+        onChange={handleFileChange}
+        disabled={isUploading}
+      />
+      {status && <Status>{status}</Status>}
+      {error && <Status error>{error}</Status>}
+    </UploadContainer>
+  );
 };
+        
+
 
 export default PDFUploader;

@@ -1,23 +1,30 @@
 from llama_index.core import Document, VectorStoreIndex, Settings
 from llama_index.core.node_parser import SimpleNodeParser
+
 import uuid
 from typing import Dict, Optional
-
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 class IndexingService:
     def __init__(self):
         self.indices: Dict[str, VectorStoreIndex] = {}
         self.node_parser = SimpleNodeParser.from_defaults()
 
+        # Using HuggingFace for embedding
+        Settings.embed_model = HuggingFaceEmbedding(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            device="cpu"
+        )
+
 
     async def create_index(self,content):
         try:
-            documents = [Document(text=content["text"] + "\n" + content["images_text"])]
+            documents = [Document(text=content.get("text", ""))]
 
             # Create documents and parse into nodes
-            nodes = self.node_parset.get_nodes_from_documents(documents)
+            #nodes = self.node_parser.get_nodes_from_documents(documents)
 
             # Creating index
-            index = VectorStoreIndex(nodes)
+            index = VectorStoreIndex.from_documents(documents)
 
             # Storing index with UUID
             index_id = str(uuid.uuid4())

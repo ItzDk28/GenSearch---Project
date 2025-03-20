@@ -1,41 +1,71 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ThemeProvider } from 'styled-components';
-import GlobalStyles from './styles/GlobalStyles';
-import { theme } from './styles/theme';
-import PDFUploader from './components/PDFUploader';
-import QueryInput from './components/QueryInput';
-import ResponseDisplay from './components/ResponseDisplay';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import Features from './components/Features';
+import Footer from './components/Footer';
+import SearchSection from './components/SearchSection';
 
 const AppContainer = styled.div`
-  max-width: 1200pix;
-  margin: 0 auto;
-  padding: 2rem;
+  background-color: #000000;
+  background-image: 
+    radial-gradient(
+      circle at left,
+      rgba(61, 0, 153, 0.6) 0%,
+      rgba(32, 0, 80, 0.2) 20%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    radial-gradient(
+      circle at right,
+      rgba(128, 0, 255, 0.8) 0%,
+      rgba(80, 0, 180, 0.3) 40%,
+      rgba(0, 0, 0, 0) 70%
+    );
+  color: white;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
-const App = () => {
+function App() {
+  const [showSearch, setShowSearch] = useState(false);
   const [indexId, setIndexId] = useState(null);
-  const [response, setResponse] = useState('');
 
   const handleUpload = (data) => {
+    // console.log('Setting index ID:', data.index_id); // For debugging
     setIndexId(data.index_id);
+    setShowSearch(true);
+    //setResponse('');   // Clear previous response
   };
 
-  const handleQuery = (response) => {
-    setResponse(response);
+  const handleGetStarted = () => {
+    setShowSearch(true);
+    window.scrollTo({
+      top: document.querySelector('.search-section')?.offsetTop,
+      behavior: 'smooth'
+    });
   };
+
+  //const handleQuery = (response) => {
+  //  setResponse(response);
+  //};
 
   return (
-    <ThemeProvider theme = {theme}>
-      <GlobalStyles />
-      <AppContainer>
-        <h1>GenSearch</h1>
-        <PDFUploader onUpload={handleUpload} />
-        {indexId && <QueryInput onSubmit={handleQuery} indexId={indexId} />}
-        {response && <ResponseDisplay response={response} />}
-      </AppContainer>
-    </ThemeProvider>
+    <AppContainer>
+      <Header />
+      <main>
+        <Hero onGetStarted={handleGetStarted} />
+        {showSearch && (
+          <SearchSection 
+            indexId={indexId}
+            onUpload={handleUpload}
+          />
+        )}
+        <Features />
+      </main>
+      <Footer />
+    </AppContainer>
   );
-};
+}
 
 export default App;

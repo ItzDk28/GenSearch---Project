@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenSearch - AI Tool for Custom Answers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --text-color: white;
+            --button-color: white;
+            --card-bg-color: rgba(255, 255, 255, 0.05);
+            --card-border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #000000;
+            background-image: 
+                radial-gradient(
+                    circle at left,
+                    rgba(61, 0, 153, 0.6) 0%,
+                    rgba(32, 0, 80, 0.2) 20%,
+                    rgba(0, 0, 0, 0) 60%
+                ),
+                radial-gradient(
+                    circle at right,
+                    rgba(128, 0, 255, 0.8) 0%,
+                    rgba(80, 0, 180, 0.3) 40%,
+                    rgba(0, 0, 0, 0) 70%
+                );
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .login-btn, .signup-btn {
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .login-btn {
+            background: transparent;
+            color: white;
+        }
+
+        .signup-btn {
+            background: white;
+            color: #2b0a3d;
+            border-radius: 4px;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            max-width: 700px;
+            margin-bottom: 3rem;
+        }
+
+        .get-started-btn {
+            background: white;
+            color: #2b0a3d;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 12px 40px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .get-started-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Search Section */
+        .search-section {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            padding: 20px;
+            display: none; /* Initially hidden, shown via JS */
+        }
+
+        .search-section h3 {
+            margin: 1.5rem 0 1rem;
+        }
+
+        .file-list {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .file-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-name {
+            font-weight: 500;
+        }
+
+        .file-size {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #2b0a3d;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .response-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none; /* Initially hidden, shown via JS */
+        }
+
+        .response {
+            line-height: 1.6;
+        }
+
+        /* Features Section */
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            padding: 40px 20px;
+            margin-top: auto;
+        }
+
+        .feature-card {
+            flex: 1;
+            min-width: 300px;
+            max-width: 350px;
+            background: var(--card-bg-color);
+            border: 1px solid var(--card-border-color);
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .feature-card h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Footer Styles */
+        footer {
+            margin-top: auto;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+
+        .footer-column h4 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .footer-column a {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .footer-column a:hover {
+            color: white;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero h2 {
+                font-size: 1.2rem;
+            }
+            
+            .features {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .feature-card {
+                max-width: 100%;
+            }
+            
+            .footer-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">GenSearch</div>
+        <div class="auth-buttons">
+            <button class="login-btn">LOG IN</button>
+            <button class="signup-btn">SIGN UP</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>GenSearch</h1>
+            <h2>An AI Tool That Helps Generate Custom Answers With Your Uploaded Material</h2>
+            
+            <button class="get-started-btn" id="get-started-btn">Get Started</button>
+            <input 
+                id="file-upload" 
+                type="file" 
+                multiple 
+                accept=".pdf" 
+                style="display: none;" 
+            />
+        </section>
+
+        <section class="search-section" id="search-section">
+            <h3>Upload Files</h3>
+            <div class="file-list" id="file-list">
+                <!-- File items will be added here by JavaScript -->
+            </div>
+            
+            <h3>Ask a Question</h3>
+            <form id="search-form" class="search-form">
+                <input 
+                    type="text" 
+                    id="query-input"
+                    placeholder="Enter your question..."
+                    class="search-input"
+                />
+                <button type="submit" class="search-btn">Search</button>
+            </form>
+
+            <div class="response-container" id="response-container">
+                <h3>Response</h3>
+                <div class="response" id="response-text"></div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <h2>Quality Output</h2>
+                <p>Our app delivers high-quality results by precisely understanding user queries and retrieving the most relevant information. It combines the power of advanced indexing and AI-generated insights to ensure accurate and reliable responses. This makes finding the right information fast and effortless for users.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h2>Reliable</h2>
+                <p>Our app is designed to be scalable, efficiently handling an increasing number of PDFs and complex queries as your needs grow. This ensures consistent performance, even with large volumes of data. Users can rely on the app to deliver fast and accurate results, regardless of the size of their document library.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h2>Effecient</h2>
+                <p>The app operates efficiently by quickly processing user queries and retrieving relevant information from indexed PDFs. Its advanced indexing technology minimizes search times, allowing users to find answers almost instantly. This streamlined approach enhances productivity, making information retrieval a seamless experience.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-column">
+                <img src="logo.svg" alt="GenSearch Logo" class="footer-logo" />
+                <p>we create possibilities<br />for the connected world.</p>
+            </div>
+            
+            <div class="footer-column">
+                <h4>EXPLORE</h4>
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+            </div>
+            
+            <div class="footer-column">
+                <h4>FOLLOW</h4>
+                <a href="#instagram">Instagram</a>
+                <a href="#twitter">Twitter</a>
+                <a href="#linkedin">LinkedIn</a>
+            </div>
+            
+            <div class="footer-column">
+                <h4>LEGAL</h4>
+                <a href="#terms">Terms</a>
+                <a href="#privacy">Privacy</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Basic functionality demonstration
+        document.addEventListener('DOMContentLoaded', function() {
+            const getStartedBtn = document.getElementById('get-started-btn');
+            const fileUpload = document.getElementById('file-upload');
+            const searchSection = document.getElementById('search-section');
+            const fileList = document.getElementById('file-list');
+            const searchForm = document.getElementById('search-form');
+            const queryInput = document.getElementById('query-input');
+            const responseContainer = document.getElementById('response-container');
+            const responseText = document.getElementById('response-text');
+            
+            // Get Started button functionality
+            getStartedBtn.addEventListener('click', function() {
+                fileUpload.click();
+            });
+            
+            // File upload handling
+            fileUpload.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    // Show search section
+                    searchSection.style.display = 'block';
+                    
+                    // Display uploaded files
+                    fileList.innerHTML = '';
+                    Array.from(e.target.files).forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'file-item';
+                        
+                        const fileName = document.createElement('span');
+                        fileName.className = 'file-name';
+                        fileName.textContent = file.name;
+                        
+                        const fileSize = document.createElement('span');
+                        fileSize.className = 'file-size';
+                        fileSize.textContent = `(${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                        
+                        fileItem.appendChild(fileName);
+                        fileItem.appendChild(fileSize);
+                        fileList.appendChild(fileItem);
+                    });
+                }
+            });
+            
+            // Search form handling
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (queryInput.value.trim() !== '') {
+                    // Show loading state (in a real app)
+                    // ...
+                    
+                    // Simulate API response (in a real app, this would be an actual API call)
+                    setTimeout(() => {
+                        responseContainer.style.display = 'block';
+                        responseText.textContent = `AI-generated response for: "${queryInput.value}" based on your uploaded documents. This would be replaced with actual AI-generated content in a full implementation.`;
+                    }, 1000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
