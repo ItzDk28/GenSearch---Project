@@ -9,12 +9,13 @@
     "ajv": "^8.12.0",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
+    "openai": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
     "react-scripts": "^5.0.1",
     "styled-components": "^6.1.15",
-    "web-vitals": "^4.2.4",
-    "openai": "^4.0.0"
+    "web-vitals": "^4.2.4"
   },
   "scripts": {
     "start": "set SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",

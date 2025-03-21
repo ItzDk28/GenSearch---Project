@@ -6,16 +6,15 @@ from app.services.indexing import IndexingService
 from app.services.llm_service import LLMService
 from app.config.settings import settings
 import logging
-
-
+from app.config.logging import setup_logging
 
 class QueryRequest(BaseModel):
     query: str
     index_id: str
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+setup_logging
+logger = logging.getLogger('app.main')
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -69,3 +68,4 @@ async def query_document(request: QueryRequest):
     except Exception as e:
         logger.error(f"Error processing query: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+

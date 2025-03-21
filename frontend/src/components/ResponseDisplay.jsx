@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import ReactMarkdown from 'react-markdown';
 
 const ResponseContainer = styled.div`
     margin: 20px;
@@ -35,17 +36,56 @@ const Score = styled.div`
   margin-bottom: 10px;
 `;
 
-const Content = styled.div`
-  white-space: pre-wrap;
-  line-height: 1.6;
-  font-size: 1rem;
-  color: #212529;
+const MarkdownStyles = styled.div`
+  h1 {
+        font-size: 24px;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #eee;
+    }
+
+    em {
+        display: block;
+        font-size: 18px;
+        color: #34495e;
+        margin: 20px 0 10px 0;
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 15px 0;
+    }
+
+    ul li {
+        position: relative;
+        padding-left: 20px;
+        margin: 8px 0;
+    }
+
+    ul li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #3498db;
+    }
+
+    ul li ul li:before {
+        content: "-";
+    }
+
+    blockquote {
+        margin: 20px 0;
+        padding: 10px 20px;
+        background: #f8f9fa;
+        border-left: 4px solid #3498db;
+        color: #2c3e50;
+    }
 `;
 
 const ResponseDisplay = ({ response }) => {
     if (!response) return null;
-
-    const sections = response.split('\n\n---\n\n');
 
     return (
         <ResponseContainer>
@@ -59,10 +99,12 @@ const ResponseDisplay = ({ response }) => {
                     <Section key={index}>
                         <SectionHeader>{header}</SectionHeader>
                         {score && <Score>{score}</Score>}
-                        <Content>{content}</Content>
+                        <MarkdownStyles>
+                            <ReactMarkdown>{content}</ReactMarkdown>
+                        </MarkdownStyles>
                     </Section>
-            );
-        })}
+                );
+            })}
         </ResponseContainer>
     );
 };

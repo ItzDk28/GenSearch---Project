@@ -3,8 +3,9 @@ import pytesseract
 import fitz  #PyMuPDF
 from fastapi import UploadFile
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
+from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
 

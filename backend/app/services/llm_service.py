@@ -1,4 +1,9 @@
 from llama_index.core import Settings
+from llama_index.core.retrievers import VectorIndexRetriever
+from llama_index.core.query_engine import RetrieverQueryEngine
+from llama_index.core.postprocessor import SimilarityPostprocessor
+from llama_index.core.response import Response
+from llama_index.core.response.pprint_utils import pprint_response
 from openai import OpenAI
 import sys
 import os
@@ -34,51 +39,88 @@ class LLMService:
             # Getting the index using index_id 
             index = self.indexing_service.get_index(index_id)
 
+            retriever = VectorIndexRetriever(
+                index=index,
+                similarity_top_k=2,
+                query_mode="default"
+            )
+
+            postprocessor = SimilarityPostprocessor(
+                similarity_cutoff = 0.7
+            )
+
             # Creating query engine
-            query_engine = index.as_query_engine(
-                response_mode="no_text",
-                streaming=False,
-                similarity_top_k=1,
-                similarity_cutoff=0.5
+            query_engine = RetrieverQueryEngine(
+                retriever=retriever,
+                node_postprocessors=[postprocessor]
             )
 
             logger.debug(f"Querying index with: {query}")
-            retrieval_results = query_engine.retrieve(query)
-            
-            logger.debug(f"Retrieved {len(retrieval_results)} text chunks")
-            if len(retrieval_results) == 0:
+            response = query_engine.query(query)
+
+            logger.debug("Query Response: ")
+            pprint_response(response)
+
+
+            if not response or not response.response:
                 return "No matching content found. Please try rephrasing your question."
 
-            # Get the single most relevant result
-            node = retrieval_results[0]
-            text_content = node.text.strip()
-            score = getattr(node, 'score', 'N/A')
+            # Format prompt for structured response
+            messages = [
+                {
+                    "role": "system",
+                    "content": """You are a documentation expert. Format your answers using Markdown for clarity:
+# Main Topic
 
-            # Format the response
-            response = f"Most Relevant Answer (Similarity: {score:.2f}):\n\n{text_content}"
-            
-            return response
+*Subsection 1*
 
-            '''messages = [
-                {"role": "system", "content": "You are a helpful assistant. Use the provided context to answer questions."},
-                {"role": "user", "content": f"Context: {context}\n\nQuestion: {query}"}
+• Main point 1
+  - Detail A
+  - Detail B
+
+*Subsection 2*
+
+• Main point 2
+  - Detail C
+  - Detail D
+
+> Important notes in blockquotes
+
+Use:
+- Single # for main headings
+- *asterisks* for subsection titles
+- • bullet points for main items
+- - hyphens for sub-items
+- > for important quotes"""           
+                },
+                {
+                    "role": "user",
+                    "content": f"""Based on the following content, provide a well-organized answer using Markdown formatting:
+
+Question: {query}
+
+Context:
+{response.response}
+
+Please ensure:
+- Each main section starts with TWO newlines
+- Each subsection has TWO newlines after the heading
+- Each bullet point is on a new line
+- There are empty lines between sections
+- Lists are properly indented
+"""
+                }
             ]
-            
-            # Generating response
-            loop = asyncio.get_running_loop()
 
-            response = await loop.run_in_executor(
-                None,
-                lambda: self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=messages,
-                    temperature=0.7
-                )
+            # Generate formatted response
+            final_response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                temperature=0.3,
+                max_tokens=800
             )
 
-            return response.choices[0].message.content
-        '''
-        
+            return final_response.choices[0].message.content
+
         except Exception as e:
             logger.error(f"Error in generate_response: {str(e)}", exc_info=True)
-            raise
