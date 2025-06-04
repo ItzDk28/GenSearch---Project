@@ -20,17 +20,9 @@ class LLMService:
     def __init__(self, indexing_service):
 
         self.client = OpenAI(
-            base_url="https://api.sree.shop/v1",
             api_key=settings.OPENAI_API_KEY
         )
 
-        '''Settings.llm = OpenAI(
-            temperature=0.7,
-            model="gpt-4o",
-            api_key=settings.OPENAI_API_KEY,
-            api_base=settings.BASE_URL,
-            max_tokens=512,
-        )'''
 
         self.indexing_service = indexing_service
 
@@ -41,86 +33,40 @@ class LLMService:
 
             retriever = VectorIndexRetriever(
                 index=index,
-                similarity_top_k=2,
-                query_mode="default"
+                similarity_top_k=1,
             )
-
+            
             postprocessor = SimilarityPostprocessor(
                 similarity_cutoff = 0.7
             )
 
             # Creating query engine
+            
             query_engine = RetrieverQueryEngine(
                 retriever=retriever,
                 node_postprocessors=[postprocessor]
             )
+            
 
             logger.debug(f"Querying index with: {query}")
             response = query_engine.query(query)
 
-            logger.debug("Query Response: ")
+            similarity_score = None
+            if response.source_nodes and len(response.source_nodes) > 0:
+                node = response.source_nodes[0]
+                similarity_score = node.score
+
+            # Log similarity score
+            logger.info(f"Similarity score: {similarity_score}")
+            print(f"Similarity score: {similarity_score}")
+
             pprint_response(response)
-
-
+            
             if not response or not response.response:
-                return "No matching content found. Please try rephrasing your question."
-
-            # Format prompt for structured response
-            messages = [
-                {
-                    "role": "system",
-                    "content": """You are a documentation expert. Format your answers using Markdown for clarity:
-# Main Topic
-
-*Subsection 1*
-
-• Main point 1
-  - Detail A
-  - Detail B
-
-*Subsection 2*
-
-• Main point 2
-  - Detail C
-  - Detail D
-
-> Important notes in blockquotes
-
-Use:
-- Single # for main headings
-- *asterisks* for subsection titles
-- • bullet points for main items
-- - hyphens for sub-items
-- > for important quotes"""           
-                },
-                {
-                    "role": "user",
-                    "content": f"""Based on the following content, provide a well-organized answer using Markdown formatting:
-
-Question: {query}
-
-Context:
-{response.response}
-
-Please ensure:
-- Each main section starts with TWO newlines
-- Each subsection has TWO newlines after the heading
-- Each bullet point is on a new line
-- There are empty lines between sections
-- Lists are properly indented
-"""
-                }
-            ]
-
-            # Generate formatted response
-            final_response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                temperature=0.3,
-                max_tokens=800
-            )
-
-            return final_response.choices[0].message.content
-
+                return "Sorry, I couldn't find any relevant information."
+           
         except Exception as e:
             logger.error(f"Error in generate_response: {str(e)}", exc_info=True)
+            raise
+
+        return (f"Response: {response.response} \n\n")

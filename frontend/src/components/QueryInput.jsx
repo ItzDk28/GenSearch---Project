@@ -64,7 +64,6 @@ const QueryInput = ({ onSubmit, index_id }) => {
 
             const data = await response.json();
             onSubmit(data.response);
-            setQuery('')  // Clear the input field
         } catch(error) {
             console.error('Query Failed:', error);
             setError('Failed to get response. Please try again.');
