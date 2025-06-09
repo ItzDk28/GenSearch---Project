@@ -32,9 +32,11 @@ function App() {
   const [indexId, setIndexId] = useState(null);
 
   const handleUpload = (data) => {
-    // console.log('Setting index ID:', data.index_id); // For debugging
-    setIndexId(data.index_id);
-    setShowSearch(true);
+    if (data.results && data.results.length > 0) {
+      // console.log('Setting index ID:', data.index_id); // For debugging
+      setIndexId(data.results[0].index_id);
+      setShowSearch(true);
+    }
     //setResponse('');   // Clear previous response
   };
 
